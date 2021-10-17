@@ -1,5 +1,5 @@
-const users = [];
-const { errorMessages } = require('./constants');
+let users = [];
+const { errorMessages } = require('../utils/constants');
 
 const addUser = (id, name, room) => {
   const existingUser = users.some((user) => user.name.toLowerCase() === name.toLowerCase());
@@ -14,11 +14,21 @@ const addUser = (id, name, room) => {
   return { user };
 };
 
-const getUser = (id) => users.find((user) => user.id === id);
+const getUser = (id) => {
+  const user = users.find((u) => u.id === id);
+  if (!user) {
+    return { error: errorMessages.validationErrorMessage };
+  }
+  return user;
+};
 
 const deleteUser = (id) => {
   const user = users.find((delUser) => delUser.id === id);
-  users.filter((delUser) => delUser.id === id);
+  users = users.filter((delUser) => delUser.id !== id);
+  console.log(users);
+  if (!user) {
+    return { error: errorMessages.validationErrorMessage };
+  }
   return user;
 };
 

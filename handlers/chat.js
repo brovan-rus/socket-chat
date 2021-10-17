@@ -1,6 +1,6 @@
 const {
   addUser, getUsers, deleteUser, getUser,
-} = require('../utils/users');
+} = require('./users');
 const ValidationError = require('../errors/ValidationError');
 
 module.exports = (io, socket) => {
@@ -11,21 +11,33 @@ module.exports = (io, socket) => {
       return;
     }
     socket.join(user.room);
-    io.in(room).emit('notification', { title: `В чат вошёл ${name}. Приветствуем!, ${socket.rooms}` });
+    io.in(room).emit('notification', {
+      title: `В чат вошёл ${name}. Приветствуем!, ${socket.rooms}`,
+      time: Date.now().toString(),
+    });
     io.in(room).emit('users', getUsers(room));
   };
 
   const disconnect = () => {
     const user = deleteUser(socket.id);
-    console.log(`${user.name} disconnected`);
-    deleteUser(user.id);
-    socket.in(user.room).emit('notification', { title: `Из чата вышел ${user.name}. До свидания!` });
+    if (user.error) {
+      socket.emit('error', new ValidationError(user.error));
+      return;
+    }
+    io.in(user.room).emit('notification', {
+      title: `Из чата вышел ${user.name}. До свидания!`,
+      time: Date.now().toString(),
+    });
     socket.in(user.room).emit('users', getUsers(user.room));
   };
 
   const sendMessage = (message) => {
     const user = getUser(socket.id);
-    socket.in(user.room).emit('message', { user: user.name, text: message });
+    if (user.error) {
+      socket.emit('error', new ValidationError(user.error));
+      return;
+    }
+    socket.in(user.room).emit('message', { user: user.name, text: message, time: Date.now().toString() });
   };
 
   socket.on('login', login);
