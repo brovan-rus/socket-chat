@@ -1,6 +1,4 @@
-const {
-  addUser, getUsers, deleteUser, getUser,
-} = require('./users');
+const { addUser, deleteUser, getUser, getAllUsers } = require('./users');
 const ValidationError = require('../errors/ValidationError');
 
 module.exports = (io, socket) => {
@@ -12,10 +10,10 @@ module.exports = (io, socket) => {
     }
     socket.join(user.room);
     io.in(room).emit('notification', {
-      title: `В чат вошёл ${name}. Приветствуем!, ${socket.rooms}`,
+      title: `В чат вошёл ${name}. Приветствуем!`,
       time: Date.now().toString(),
     });
-    io.in(room).emit('users', getUsers(room));
+    io.emit('users', getAllUsers());
   };
 
   const disconnect = () => {
@@ -28,7 +26,7 @@ module.exports = (io, socket) => {
       title: `Из чата вышел ${user.name}. До свидания!`,
       time: Date.now().toString(),
     });
-    socket.in(user.room).emit('users', getUsers(user.room));
+    io.emit('users', getAllUsers());
   };
 
   const sendMessage = (message) => {
@@ -37,7 +35,7 @@ module.exports = (io, socket) => {
       socket.emit('error', new ValidationError(user.error));
       return;
     }
-    socket.in(user.room).emit('message', { user: user.name, text: message, time: Date.now().toString() });
+    io.in(user.room).emit('message', { user: user.name, text: message, time: Date.now().toString() });
   };
 
   socket.on('login', login);

@@ -12,14 +12,17 @@ const chat = require('./handlers/chat');
 
 const { PORT = 4000 } = process.env;
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
-
 app.use(requestLogger);
 app.use(helmet());
 app.use(cors());
 app.use(limiter);
-
+const server = http.createServer(app);
+const io = socketIO(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
 io.on('connection', (socket) => chat(io, socket));
 
 app.use((req, res, next) => {

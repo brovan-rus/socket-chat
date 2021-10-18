@@ -34,9 +34,12 @@ const deleteUser = (id) => {
 
 const getUsers = (room) => users.filter((user) => user.room === room);
 
+const getAllUsers = () => users;
+
 module.exports = {
   addUser,
   getUser,
   deleteUser,
   getUsers,
+  getAllUsers,
 };
