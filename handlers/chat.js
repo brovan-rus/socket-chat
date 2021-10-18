@@ -1,4 +1,6 @@
-const { addUser, deleteUser, getUser, getAllUsers } = require('./users');
+const {
+  addUser, deleteUser, getUser, getAllUsers,
+} = require('./users');
 const ValidationError = require('../errors/ValidationError');
 
 module.exports = (io, socket) => {
